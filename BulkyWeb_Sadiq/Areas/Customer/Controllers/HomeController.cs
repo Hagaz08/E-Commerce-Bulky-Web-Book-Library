@@ -23,7 +23,16 @@ namespace BulkyWeb_Sadiq.Areas.Customer.Controllers
             return View(productList);
         }
 
-        public IActionResult Privacy()
+		[HttpGet]
+		public IActionResult Details(int? ProductId)
+		{
+			var Product = _unitOfWork.Product.Get(u => u.Id == ProductId, includeProperties: "Category");
+
+			return View(Product);
+		}
+
+
+		public IActionResult Privacy()
         {
             return View();
         }
