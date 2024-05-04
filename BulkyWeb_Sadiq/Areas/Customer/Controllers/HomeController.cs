@@ -1,7 +1,9 @@
 ﻿using Bulky.DataAccess.Repository.IRepository;
 using Bulky.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using System.Security.Claims;
 
 namespace BulkyWeb_Sadiq.Areas.Customer.Controllers
 {
@@ -24,15 +26,51 @@ namespace BulkyWeb_Sadiq.Areas.Customer.Controllers
         }
 
 		[HttpGet]
-		public IActionResult Details(int? ProductId)
+		public IActionResult Details(int productId)
 		{
-			var Product = _unitOfWork.Product.Get(u => u.Id == ProductId, includeProperties: "Category");
 
-			return View(Product);
+
+            var Cart = new ShoppingCart
+            {
+                Product = _unitOfWork.Product.Get(u => u.Id == productId, includeProperties: "Category"),
+                Count = 1,
+                ProductId = productId
+
+            };
+
+
+            return View(Cart);
 		}
 
+        [HttpPost]
+        [Authorize]
+        public IActionResult Details(ShoppingCart shoppingCart)
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var UserId = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier).Value;
+            shoppingCart.ApplicationUserId= UserId;
+          
+            ShoppingCart cartFromDb= _unitOfWork.ShoppingCart.Get(u=>u.ApplicationUserId== UserId && u.ProductId==shoppingCart.ProductId);
+            if (cartFromDb != null)
+            {
+                //cart already exist for the product and by the user, so update
+                cartFromDb.Count+=shoppingCart.Count;
+                _unitOfWork.ShoppingCart.Update(cartFromDb);
+                TempData["success"] = "Cart Updated Succesfully";
+            }
+            else
+            {
+                //cart does not exist, so add cart to db
+                _unitOfWork.ShoppingCart.Add(shoppingCart);
+                TempData["success"] = "Cart added Succesfully";
+            }
+            _unitOfWork.Save();
 
-		public IActionResult Privacy()
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        public IActionResult Privacy()
         {
             return View();
         }
