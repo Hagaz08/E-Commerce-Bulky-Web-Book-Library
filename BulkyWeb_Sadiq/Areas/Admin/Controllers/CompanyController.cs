@@ -9,7 +9,7 @@ using Microsoft.DotNet.Scaffolding.Shared.Messaging;
 
 namespace BulkyWeb_Sadiq.Areas.Admin.Controllers
 {
-    //[Authorize(Roles = SD.Role_Admin)]
+    [Authorize(Roles = SD.Role_Admin)]
     [Area("Admin")]
 	public class CompanyController : Controller
 	{
