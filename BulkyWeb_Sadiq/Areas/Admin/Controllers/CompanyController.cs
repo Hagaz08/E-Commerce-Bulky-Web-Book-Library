@@ -15,6 +15,7 @@ namespace BulkyWeb_Sadiq.Areas.Admin.Controllers
 	{
 		private readonly IUnitOfWork _unitOfWork;
 		
+		
 		public CompanyController(IUnitOfWork unitOfWork)
 		{
 			_unitOfWork = unitOfWork;
@@ -29,7 +30,6 @@ namespace BulkyWeb_Sadiq.Areas.Admin.Controllers
 		
 		public IActionResult Upsert(int? Id)
 		{
-			
 			if (Id == null || Id == 0)
 			{
 				return View(new Company());
