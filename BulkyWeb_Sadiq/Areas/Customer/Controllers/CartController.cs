@@ -32,8 +32,11 @@ namespace BulkyWeb_Sadiq.Areas.Customer.Controllers
                 ShoppingCartList = _unitOfWork.ShoppingCart.GetAll(u => u.ApplicationUserId == UserId, includeProperties: "Product"),
                 OrderHeader = new OrderHeader()
             };
+            IEnumerable<ProductImage> productImages = _unitOfWork.ProductImage.GetAll();
+
             foreach (var cart in ShoppingCartVM.ShoppingCartList)
             {
+                cart.Product.ProductImages=productImages.Where(u=>u.ProductId==cart.ProductId).ToList();
                 cart.price = GetPriceBasedOnQuantity(cart);
                 ShoppingCartVM.OrderHeader.OrderTotal += (cart.price * cart.Count);
             }
